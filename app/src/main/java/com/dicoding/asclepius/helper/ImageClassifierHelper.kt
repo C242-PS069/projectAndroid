@@ -18,6 +18,6 @@ class ImageClassifierHelper(private val context: Context) {
         model.close()
 
         val confidencePercentage = (result?.score ?: 0f) * 100
-        return Pair(result?.label ?: "Tidak teridentifikasi", String.format("%.2f%%", confidencePercentage))
+        return Pair(result?.label ?: "Tidak teridentifikasi nih boy", String.format("%.2f%%", confidencePercentage))
     }
 }
