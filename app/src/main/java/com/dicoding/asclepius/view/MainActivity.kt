@@ -13,55 +13,53 @@ import com.dicoding.asclepius.helper.ImageClassifierHelper
 import com.dicoding.asclepius.helper.ImageViewModel
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var viewModel: ImageViewModel
+    private lateinit var mainBinding: ActivityMainBinding
+    private lateinit var imageViewModel: ImageViewModel
 
-    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            viewModel.imageUri = it
-            binding.previewImageView.setImageURI(it)
+    private val galleryPicker = registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri: Uri? ->
+        imageUri?.let {
+            imageViewModel.imageUri = it
+            mainBinding.previewImageView.setImageURI(it)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        mainBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(mainBinding.root)
 
-        viewModel = ViewModelProvider(this).get(ImageViewModel::class.java)
+        imageViewModel = ViewModelProvider(this).get(ImageViewModel::class.java)
 
-        binding.galleryButton.setOnClickListener { startGallery() }
-        binding.analyzeButton.setOnClickListener { analyzeImage() }
+        mainBinding.galleryButton.setOnClickListener { openGallery() }
+        mainBinding.analyzeButton.setOnClickListener { processImage() }
 
-        viewModel.imageUri?.let {
-            binding.previewImageView.setImageURI(it)
+        imageViewModel.imageUri?.let {
+            mainBinding.previewImageView.setImageURI(it)
         }
     }
 
-    private fun startGallery() {
-        galleryLauncher.launch("image/*")
+    private fun openGallery() {
+        galleryPicker.launch("image/*")
     }
 
-    private fun analyzeImage() {
-        viewModel.imageUri?.let { uri ->
-            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-            val classifier = ImageClassifierHelper(this)
-            val (resultText, confidenceScore) = classifier.classifyStaticImage(bitmap)
-            moveToResult(resultText, confidenceScore)
-        } ?: showToast("Pilih gambar terlebih dahulu coy")
+    private fun processImage() {
+        imageViewModel.imageUri?.let { uri ->
+            val bitmapImage = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+            val imageClassifier = ImageClassifierHelper(this)
+            val (classificationResult, confidence) = imageClassifier.classifyStaticImage(bitmapImage)
+            navigateToResult(classificationResult, confidence)
+        } ?: displayToast("Silakan pilih gambar terlebih dahulu")
     }
 
-    private fun moveToResult(resultText: String, confidenceScore: String) {
-        val intent = Intent(this, ResultActivity::class.java).apply {
-            putExtra("RESULT_TEXT", resultText + " $confidenceScore")
-            putExtra("RESULT_IMAGE_URI", viewModel.imageUri.toString())
+    private fun navigateToResult(classificationResult: String, confidence: String) {
+        val resultIntent = Intent(this, ResultActivity::class.java).apply {
+            putExtra("RESULT_TEXT", "$classificationResult $confidence")
+            putExtra("RESULT_IMAGE_URI", imageViewModel.imageUri.toString())
         }
-        startActivity(intent)
+        startActivity(resultIntent)
     }
 
-    private fun showToast(message: String) {
+    private fun displayToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
-
-//aku bingug bgt coy
