@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
             val classifier = ImageClassifierHelper(this)
             val (resultText, confidenceScore) = classifier.classifyStaticImage(bitmap)
             moveToResult(resultText, confidenceScore)
-        } ?: showToast("Pilih gambar terlebih dahulu coy.")
+        } ?: showToast("Pilih gambar terlebih dahulu coy")
     }
 
     private fun moveToResult(resultText: String, confidenceScore: String) {
@@ -63,3 +63,5 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
+
+//aku bingug bgt coy
